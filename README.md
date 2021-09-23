@@ -1,9 +1,7 @@
 ### Repository di TPSIT di Edoardo Ababei 
 
-- 🔭 I’m currently working on some projects
-- 🌱 I’m currently learning MEAN
-- 🤔 I’m looking for help with my code
-- 📫 How to reach me: e.ababei.1257@vallauri.edu
-- ⚡ Fun fact: no fun fact
--->
+⚡Node.js è un runtime system open source multipiattaforma orientato agli eventi per l'esecuzione di codice JavaScript, costruita sul motore JavaScript V8 di Google Chrome. Molti dei suoi moduli base sono scritti in JavaScript, e gli sviluppatori possono scrivere nuovi moduli in JavaScript
+⚡ TypeScript è un linguaggio di programmazione open source sviluppato da Microsoft. Si tratta di un Super-set di JavaScript che basa le sue caratteristiche su ECMAScript 6; capo del progetto è Anders Hejlsberg.
+⚡ In informatica JavaScript è un linguaggio di programmazione orientato agli oggetti e agli eventi, comunemente utilizzato nella programmazione Web lato client per la creazione, in siti web e applicazioni
+
 
