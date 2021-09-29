@@ -13,11 +13,7 @@ const PORT :number = 1337;
 let paginaErrore:string;
 _http
   .createServer(function (req, res) {
-    let metodo = req.method;
-    let url = _url.parse(req.url, true);
-
-    let risorsa = url.pathname;
-    let parametri = url.query;
+    
     console.log(`method: ${metodo}  -  risorsa: ${risorsa} + parametri: ${JSON.stringify(parametri)}`)
 
     if (risorsa == "/") {
