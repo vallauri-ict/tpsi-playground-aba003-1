@@ -7,4 +7,11 @@ $(document).ready(function() {
             alert(JSON.stringify(data));
         });
     });
+    $("#btnInvia1").on("click", function() {
+        let request = inviaRichiesta("get", "/api/servizio2", {"nome":"piedi"});
+        request.fail(errore);
+        request.done(function(data) {
+            alert(JSON.stringify(data));
+        });
+    });
 });

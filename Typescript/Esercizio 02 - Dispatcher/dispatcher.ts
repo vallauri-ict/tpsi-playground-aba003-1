@@ -1,9 +1,12 @@
+//sezione del web server ch si occupa della gestione delle richieste
 import *  as _http from 'http';
 import *  as _url from 'url';
 import *  as _fs from 'fs';
 import *  as _mime from 'mime';
+import * as _querystring from  'query-string';
 import { throws } from 'assert/strict';
 import { json } from 'stream/consumers';
+import { brotliDecompress } from 'zlib';
 
 
 let HEADERS = require("./headers.json"); //require perchè non è typescript e essendo di piccole dimensioni va bene
@@ -33,29 +36,54 @@ class Dispatcher {  //sintassi classi Es6
             throw new Error("metodo non valido");
         }
     }
-
-    dispatch(req: any, res: any) {
-        //ci prendiamo le caratteristiche
-        let metodo = req.method;
-        let url = _url.parse(req.url, true);
-        let risorsa: any = url.pathname;
-        let parametri = url.query;//parametri è un json
-        console.log(`${this.prompt}  ${metodo}:  ${risorsa} ${JSON.stringify(parametri)}`);
-
-        if (risorsa.startsWith("/api/")) {
-            if (risorsa in this.listeners[metodo]) {
-                let callback = this.listeners[metodo][risorsa];
-                //lancio in esecuzione la callback
-                callback(req, res);
-            } else {
-                //il client si aspetta un json  ma in caso di errore gli mandiamo una string
-                res.writeHead(404, HEADERS.text);
-                res.write("Servizio non trovato");
-                res.end();
-            }
-        } else {
-            staticListener(req, res, risorsa); //la usa solo il dispatcher 
+    dispatch(req,res){
+        let metodo= req.method.toUpperCase();
+        if (metodo=='GET') {
+            innerDispatch(req,res); //non uso this perchè non è membro di classe
+        }else{
+            let parametriBody ='';
+            req.on('data',function (data) {
+                parametriBody+=data; 
+            })
+            let jsonParameters={};
+            req.on('end',function () {
+                //se la conversione va bene sono json se non va bene è urlencoded
+                try {
+                    jsonParameters=JSON.parse(parametriBody); //prendiamo i paraetri e li convertiamo in json
+                  
+                } catch (error) {
+                    jsonParameters=_querystring.parse(parametriBody)
+                }
+            })
         }
+    }
+
+
+}
+
+function innerDispatch(req: any, res: any) { //quando arriva una richiesta va a vedere se è un servizio e lo cerca dentro il vettore se c ' chiama la callback se non cè da err
+    //ci prendiamo le caratteristiche
+    let metodo = req.method;
+    let url = _url.parse(req.url, true);
+    let risorsa: any = url.pathname;
+    let parametri = url.query;//parametri è un json
+    console.log(`${this.prompt}  ${metodo}:  ${risorsa} ${JSON.stringify(parametri)}`);
+
+    req["GET"] = parametri;
+
+    if (risorsa.startsWith("/api/")) {
+        if (risorsa in this.listeners[metodo]) {
+            let callback = this.listeners[metodo][risorsa];
+            //lancio in esecuzione la callback
+            callback(req, res);
+        } else {
+            //il client si aspetta un json  ma in caso di errore gli mandiamo una string
+            res.writeHead(404, HEADERS.text);
+            res.write("Servizio non trovato");
+            res.end();
+        }
+    } else {
+        staticListener(req, res, risorsa); //la usa solo il dispatcher 
     }
 }
 function staticListener(req: any, res: any, risorsa: any) {
