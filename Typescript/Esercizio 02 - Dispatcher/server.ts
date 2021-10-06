@@ -13,9 +13,10 @@ server.listen(PORT);
 console.log("Server in ascolto sulla porta: "+PORT );
 
 //registrazione dei listener riceve un lisener come parametro e lo va a registrare dentro il vettore
-dispatcher.addListener("POST","/api/servizio1",function (req:any,res:any) {
+dispatcher.addListener("POST","/api/servizio1",function (req:any,res:any) {   
     res.writeHead(200,HEADERS.json);
-    res.write(JSON.stringify({"ris":"ok"}));
+    let nome =req["BODY"].nome;
+    res.write(JSON.stringify({"ris":nome,"id":req["GET"].id}));
     res.end();
 })
 dispatcher.addListener("GET","/api/servizio2",function (req:any,res:any) {
