@@ -9,10 +9,10 @@ import { json } from 'stream/consumers';
 import { brotliDecompress } from 'zlib';
 
 
-let HEADERS = require("./headers.json"); //require perchè non è typescript e essendo di piccole dimensioni va bene
+import  {HEADERS} from './headers' //require perchè non è typescript e essendo di piccole dimensioni va bene
 let paginaErrore: string;
 
-class Dispatcher {  //sintassi classi Es6
+export class Dispatcher {  //sintassi classi Es6
     prompt: string = ">>> "
     //any perchè è un json e va bene costituito da diverse chiai che costituiscono i metodi http
     listeners: any = {
@@ -125,6 +125,5 @@ function init() {
         }
     })
 }
-//dbbiamo esportare la classe ES5 common JS
-module.exports = new Dispatcher(); //esporta solo l' iistanza
+
 

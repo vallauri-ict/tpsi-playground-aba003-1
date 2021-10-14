@@ -1,10 +1,11 @@
 import { prototype } from 'events';
 import *  as _http from 'http';
 import { json } from 'stream/consumers';
-let HEADERS = require("./headers.json");
-let dispatcher = require("./dispatcher.ts");
+import {HEADERS} from "./headers";
+import { Dispatcher } from './dispatcher';
 import * as persons from './persons.json';
 
+let dispatcher = new Dispatcher();
 let PORT =1337;
 let server = _http.createServer(function (req,res) { //funzione richiamata ogni volta 
     //se è statico cerca il file nel file sistem se no si deve cercare il servizio nel vettore associativo del disatcher
