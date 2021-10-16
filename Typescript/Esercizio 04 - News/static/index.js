@@ -1,14 +1,13 @@
 "use strict";
-
+ let current;
 $(document).ready(function () {
   let wrapper = $("#wrapper");
   let request = inviaRichiesta("get", "/api/notizie");
   request.fail(errore);
-  request.done(function (notizie) {
-    /*console.log(notizie[1]);*/
-    console.log(notizie.notizie);
-
-    for (const notizia of notizie.notizie) {
+  request.done(function (news) {
+    console.log(news)
+    
+    for (const notizia of news) {
       let div = $("<div></div>").appendTo(wrapper);
       let span = $("<span></span>").appendTo(div);
       span.text(notizia.titolo);
@@ -18,26 +17,33 @@ $(document).ready(function () {
       a.appendTo(div);
       a.prop("notizia", notizia.file);
       a.click(dettagli);
+      a.prop("views",notizia.visualizzazioni)
 
       span = $("<span></span>").appendTo(div);
       span.addClass("nVis");
       span.text(`Visualizzato ${notizia.visualizzazioni} volte`);
-      span.prop("views",notizia.visualizzazioni)
       $("<br>").appendTo(div);
     }
   });
 
   function dettagli() {
-    let request = inviaRichiesta("post", "/api/dettagli", {notizia: $(this).prop("notizia"),});
+    let request = inviaRichiesta("post", "/api/dettagli", {notizia: $(this).prop("notizia")});
     let _this=$(this);
     request.fail(errore);
     request.done(function (data) {
-      console.log( _this.text())
-      $("#news").empty();
-      $("#news").html(data.file);
-      let views=_this.next().prop("views")+1;
-      _this.next().text(`Visualizzato ${views} volte`);
-      _this.next().prop("views",views)
+      console.log(data)
+      current=data.file;
+     
+        $("#news").empty();
+       
+        let request = inviaRichiesta("get", "/api/views", {notizia: _this.prop("notizia")});
+        request.fail(errore);
+        request.done(function(pisnelo){
+          _this.next().text(`Visualizzato ${pisnelo.ris} volte`)
+        })
+        $("#news").html(data.file);
+      
+     
     });
   }
 });
