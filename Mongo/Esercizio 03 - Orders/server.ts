@@ -1,69 +1,148 @@
 "use strict"
 
-import * as _http from 'http'
-import * as _url from 'url'
-import * as _fs from 'fs'
-import { Dispatcher } from "./dispatcher"
-import * as _mongodb from "mongodb"
-import { HEADERS } from "./headers";
-import { match } from 'assert'
-
-
+import * as _mongodb from 'mongodb'
 const mongoClient = _mongodb.MongoClient;
-const CONNECTIONSTRING = "mongodb://127.0.0.1:27017";
+const CONNSTRING = "mongodb://127.0.0.1:27017";
 const DBNAME = "5B";
-/*const dispatcher = new Dispatcher();
-const PORT = 1337; //
-
-const server = _http.createServer(function (req, res) { 
-  dispatcher.dispatch(req, res);
-})
-server.listen(PORT);
-console.log("Server in ascolto sulla porta: " + PORT);*/
 
 
-mongoClient.connect(CONNECTIONSTRING, function (err, client) {
-  if (!err) {
+//adotteremo l'approccio con le promise(come per ajax)
+//nel caso in cui dovessimo aprire due promise annidate dovremmo andare a aprire il secondo client nella then
+//della prima req e chiuderlo sempre li dentro
+
+//query 1
+mongoClient.connect(CONNSTRING,function(err,client){
+  if(!err)
+  {
+    //andiamo ad accedere al database 5B_studenti
     let db = client.db(DBNAME);
     let collection = db.collection("orders");
-
-
-    const promise1 = new Promise(() => {
-
-      /**Query 1 */
-      //con $group il recordset risultante avrà solo 2 colonne che sono _id e totale tutti gli altri campi non sono piu visibili
-      //il nome dei campi se sono usati a detsra va il $ se no non ci va
-      let request = collection.aggregate([
-        { "$match": { "status": "A" } },
-        { "$group": { "_id": "$cust_id", "totale": { "$sum": "$amount" } } },
-        { "$sort": { "totale": -1 } }
-      ]).toArray();
-
-      request.then((data) => {
-        console.log("QUERY 1: ", data);
-      });
-
-      request.catch((err) => {
-        console.error("Errore esecuzione query: " + err.message);
-      });
-
-      /**Query 2 */
-
-      
-
+  
+    //dopo aver fatto i gruppi con $group, il recordset risultante avrà solo due colonne
+    //ovvero _id e totale, tutti gli altri campi non saranno più visibili
+    //NOTA: i nomi dei campi se sono a DESTRA dei due punti devono essere virgolettati
+    //se sono a SINISTRA non è necessario che le abbiano
+    let req = collection.aggregate([
+      {$match:{status: 'A'}},
+      {$group:{_id: "$cust_id", totale: {$sum : "$amount"}}},
+      {$sort : {totale: -1}}
+    ]).toArray();
+    req.then(function(data){
+      console.log("Query 1: ", data);
     });
-
-    promise1.catch((error) => {
-      console.error(error);
+    req.catch(function(err){
+      console.log("errore nell'esecuzione della query " + err);
     });
-    promise1.finally(() => {
+    req.finally(function(){
       client.close();
     })
+  }
+  else
+  {
+    console.log("Errore nella connessione al database");
+  }
+});
 
-  } else {
-    console.log("Errore connessione al db");
+//query 2
+mongoClient.connect(CONNSTRING,function(err,client){
+  if(!err)
+  {
+    //andiamo ad accedere al database 5B_studenti
+    let db = client.db(DBNAME);
+    let collection = db.collection("orders");
+    let req = collection.aggregate([
+      //questa query ragguppa i dati per cust_id in una tabella con 3 colonne
+      {$group:{_id: "$cust_id", avgAmount: {$avg : "$amount"}, avgTotal : {$avg: {$multiply : ["$qta" ,"$amount"]}}}}
+    ]).toArray();
+    req.then(function(data){
+      console.log("Query 2: ", data);
+    });
+    req.catch(function(err){
+      console.log("errore nell'esecuzione della query " + err);
+    });
+    req.finally(function(){
+      client.close();
+    })
+  }
+  else
+  {
+    console.log("Errore nella connessione al database");
+  }
+});
+
+//query 3
+mongoClient.connect(CONNSTRING,function(err,client){
+  if(!err)
+  {
+    let db = client.db(DBNAME);
+    let collection = db.collection("unicorns");
+    let req = collection.aggregate([{$match:{gender:{$exists:true}}}, //prendiamo  
+      //per ogni record del gruppo aggiungi 1 
+      {$group:{_id:"$gender","totale":{"$sum":1} }} //id indica il campo su cui fare i gruppi
+    ]).toArray();
+    req.then(function(data){
+      console.log("Query 3: ", data);
+    });
+    req.catch(function(err){
+      console.log("errore nell'esecuzione della query " + err);
+    });
+    req.finally(function(){
+      client.close();
+    })
+  }
+  else
+  {
+    console.log("Errore nella connessione al database");
   }
 });
 
 
+//query 3bis
+mongoClient.connect(CONNSTRING,function(err,client){
+  if(!err)
+  {
+    let db = client.db(DBNAME);
+    let collection = db.collection("unicorns");
+    let req = collection.aggregate([{$group:{"_id":{"gender":"$gender"},mediaVampiri:{"$avg":"$vampires"}}} //prendiamo  
+     
+    ]).toArray();
+    req.then(function(data){
+      console.log("Query 3: ", data);
+    });
+    req.catch(function(err){
+      console.log("errore nell'esecuzione della query " + err);
+    });
+    req.finally(function(){
+      client.close();
+    })
+  }
+  else
+  {
+    console.log("Errore nella connessione al database");
+  }
+});
 
+//query 4
+mongoClient.connect(CONNSTRING,function(err,client){
+  if(!err)
+  {
+    let db = client.db(DBNAME);
+    let collection = db.collection("unicorns");
+    let req = collection.aggregate([{$group:{"_id":{"gender":"$gender"},mediaVampiri:{"$avg":"$vampires"}}} //prendiamo  
+     
+    ]).toArray();
+    req.then(function(data){
+      console.log("Query 3: ", data);
+    });
+    req.catch(function(err){
+      console.log("errore nell'esecuzione della query " + err);
+    });
+    req.finally(function(){
+      client.close();
+    })
+  }
+  else
+  {
+    console.log("Errore nella connessione al database");
+  }
+});
