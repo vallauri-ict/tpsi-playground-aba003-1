@@ -20,8 +20,8 @@ const server = _http.createServer(function (req, res) {
 server.listen(PORT);
 console.log("Server in ascolto sulla porta: " + PORT);*/
 
-// query 1  Trovare gli unicorni che hanno un peso compreso tra 700 e 800
-// $lte: 800 , $gte:700 corrispondono a minore e maggiore di  .toarray così lo convertiamo in enumerativo
+/*
+// query 1 
 mongoClient.connect(CONNECTIONSTRING, (err, client) => {
   if (!err) {
     let db = client.db(DBNAME);
@@ -39,233 +39,161 @@ mongoClient.connect(CONNECTIONSTRING, (err, client) => {
   }
 })
 
-
-// query 2 Trovare gli unicorni di genere maschile che amano l’uva echehanno ucciso più di 60 vampir
-//$and accetta un vettore con tanti json dento come condizione dell' end
-mongoClient.connect(CONNECTIONSTRING, function (err, client) {
+// query 2
+mongoClient.connect(CONNECTIONSTRING, (err, client) => {
   if (!err) {
     let db = client.db(DBNAME);
     let collection = db.collection("unicorns");
-    collection
-      .find({ $and: [{ vampires: { $gte: 60 } }, { gender: "m" }, { loves: "grape" }] })
-      .toArray(function (err, data) {
-        if (!err) {
-          console.log("Query 2 - ", "N record: " + data.length, data);
-        } else {
-          console.log("Errore esecuzione query " + err.message);
-        }
-        client.close();
-      });
+    collection.find({ $and:[{gender:"m"},{loves:"grape"},{vampires:{$gte:60}}] }).toArray((err, data) => {
+      if (!err) {
+        console.log("Query 2 - ", "N record: " + data.length, data);
+      } else {
+        console.log("Errore esecuzione query " + err.message);
+      }
+      client.close();
+    })
   } else {
     console.log("Errore connessione al db");
   }
-});
+})
 
-
-// query 2 bis Trovare gli unicorni di genere maschile che amano l’uva echehanno ucciso più di 60 vampir
-//$in accetta un vettore e significa se ama o l' uva o l' anguria
-mongoClient.connect(CONNECTIONSTRING, function (err, client) {
+// query 3
+mongoClient.connect(CONNECTIONSTRING, (err, client) => {
   if (!err) {
     let db = client.db(DBNAME);
     let collection = db.collection("unicorns");
-    collection
-      .find({ $and: [{ vampires: { $gte: 60 } }, { gender: "m" }, { loves: { $in: ["grape", "watermelon"] } }] })
-      .toArray(function (err, data) {
-        if (!err) {
-          console.log("Query 2bis - ", "N record: " + data.length, data);
-        } else {
-          console.log("Errore esecuzione query " + err.message);
-        }
-        client.close();
-      });
+    collection.find({ $or:[{gender:"f"},{weight:{$gte:700}}] }).toArray((err, data) => {
+      if (!err) {
+        console.log("Query 3 - ", "N record: " + data.length, data);
+      } else {
+        console.log("Errore esecuzione query " + err.message);
+      }
+      client.close();
+    })
   } else {
     console.log("Errore connessione al db");
   }
-});
+})
 
-
-// query 3 Trovare gli unicorni di genere femminile ochepesano meno di 700 kg
-//$or come and le consizioni della or
-mongoClient.connect(CONNECTIONSTRING, function (err, client) {
+// query 4
+mongoClient.connect(CONNECTIONSTRING, (err, client) => {
   if (!err) {
     let db = client.db(DBNAME);
     let collection = db.collection("unicorns");
-    collection
-      .find({ $or: [{ gender: "f" }, { weight: { $lte: 700 } }] })
-      .toArray(function (err, data) {
-        if (!err) {
-          console.log("Query 3 - ", "N record: " + data.length, data);
-        } else {
-          console.log("Errore esecuzione query " + err.message);
-        }
-        client.close();
-      });
+    collection.find({ $and:[{loves:{$in:["grape","apple"]}},{weight:{$lte:700}}] }).toArray((err, data) => {
+      if (!err) {
+        console.log("Query 4 - ", "N record: " + data.length, data);
+      } else {
+        console.log("Errore esecuzione query " + err.message);
+      }
+      client.close();
+    })
   } else {
     console.log("Errore connessione al db");
   }
-});
+})
 
-
-// query 4 Trovare gli unicorni che amano (l’uva o le mele) echehanno ucciso più di 60 vampiri
-// $in agisce da or preticamente restituisce i campi se amano l uva o le mele 
-mongoClient.connect(CONNECTIONSTRING, function (err, client) {
+// query 5
+mongoClient.connect(CONNECTIONSTRING, (err, client) => {
   if (!err) {
     let db = client.db(DBNAME);
     let collection = db.collection("unicorns");
-    collection
-      .find({ $and: [{ vampires: { $gte: 60 } }, { loves: { $in: ["grape", "apple"] } }] })
-      .toArray(function (err, data) {
-        if (!err) {
-          console.log("Query 4 - ", "N record: " + data.length, data);
-        } else {
-          console.log("Errore esecuzione query " + err.message);
-        }
-        client.close();
-      });
+    collection.find({ $and:[{loves:["grape","watermelon"]},{vampires:{$gte:60}}] }).toArray((err, data) => {
+      if (!err) {
+        console.log("Query 5 - ", "N record: " + data.length, data);
+      } else {
+        console.log("Errore esecuzione query " + err.message);
+      }
+      client.close();
+    })
   } else {
     console.log("Errore connessione al db");
   }
-});
+})
 
-
-// query 5 Trovare gli unicorni che amano (l’uva ele anguria) echehanno ucciso più di 60 vampiri
-mongoClient.connect(CONNECTIONSTRING, function (err, client) {
+// query 6
+mongoClient.connect(CONNECTIONSTRING, (err, client) => {
   if (!err) {
     let db = client.db(DBNAME);
     let collection = db.collection("unicorns");
-    collection
-      .find({ loves: ["grape", "watermelon"] })
-      .toArray(function (err, data) {
-        if (!err) {
-          console.log("Query 5 - ", "N record: " + data.length, data);
-        } else {
-          console.log("Errore esecuzione query " + err.message);
-        }
-        client.close();
-      });
+    collection.find({hair:{$in:["grey","brown"]} }).toArray((err, data) => {
+      if (!err) {
+        console.log("Query 6 - ", "N record: " + data.length, data);
+      } else {
+        console.log("Errore esecuzione query " + err.message);
+      }
+      client.close();
+    })
   } else {
     console.log("Errore connessione al db");
   }
-});
-
-
-// query 5bis 
-//$all unicorni che amano sia le mele che le arance tutte le voci del vettore passato
-mongoClient.connect(CONNECTIONSTRING, function (err, client) {
-  if (!err) {
-    let db = client.db(DBNAME);
-    let collection = db.collection("unicorns");
-    collection
-      .find({ loves: { $all: ["grape", "watermelon"] } })
-      .toArray(function (err, data) {
-        if (!err) {
-          console.log("Query 5bis - ", "N record: " + data.length, data);
-        } else {
-          console.log("Errore esecuzione query " + err.message);
-        }
-        client.close();
-      });
-  } else {
-    console.log("Errore connessione al db");
-  }
-});
-
-
-// query 6 Trovare gli unicorni che hanno il pelo marrone oppure grigio
-mongoClient.connect(CONNECTIONSTRING, function (err, client) {
-  if (!err) {
-    let db = client.db(DBNAME);
-    let collection = db.collection("unicorns");
-    collection
-      .find({ $or: [{ hair: "grey" }, { hair: "brown" }] })
-      .toArray(function (err, data) {
-        if (!err) {
-          console.log("Query 6 - ", "N record: " + data.length, data);
-        } else {
-          console.log("Errore esecuzione query " + err.message);
-        }
-        client.close();
-      });
-  } else {
-    console.log("Errore connessione al db");
-  }
-});
-
-
-// query 6 bis con la $in
-mongoClient.connect(CONNECTIONSTRING, function (err, client) {
-  if (!err) {
-    let db = client.db(DBNAME);
-    let collection = db.collection("unicorns");
-    collection
-      .find({ hair: { $in: ["grey", "brown"] } })
-      .toArray(function (err, data) {
-        if (!err) {
-          console.log("Query 6 bis - ", "N record: " + data.length, data);
-        } else {
-          console.log("Errore esecuzione query " + err.message);
-        }
-        client.close();
-      });
-  } else {
-    console.log("Errore connessione al db");
-  }
-});
+})
 
 
 // query 7
-//$exists Può essere usato per verificare la presenza o l‟assenza di un campo. 
-//basta solo .find({vaccinated:true})
+mongoClient.connect(CONNECTIONSTRING, (err, client) => {
+  if (!err) {
+    let db = client.db(DBNAME);
+    let collection = db.collection("unicorns");
+    collection.find({vaccinated:{$exists:true} }).toArray((err, data) => {
+      if (!err) {
+        console.log("Query 7 - ", "N record: " + data.length, data);
+      } else {
+        console.log("Errore esecuzione query " + err.message);
+      }
+      client.close();
+    })
+  } else {
+    console.log("Errore connessione al db");
+  }
+})
+
+// query 8
 mongoClient.connect(CONNECTIONSTRING, function (err, client) {
   if (!err) {
     let db = client.db(DBNAME);
     let collection = db.collection("unicorns");
-    collection
-      .find({ $and: [{ vaccinated: true }, { vaccinated: { $exists: true } }] })
-      .toArray(function (err, data) {
+    collection.updateMany({vaccinated:{$exists:false}},{$set:{vaccianted:true}},
+      (err, data) => {
         if (!err) {
-          console.log("Query 7 - ", "N record: " + data.length, data);
+          console.log("Query 8", data);
         } else {
           console.log("Errore esecuzione query " + err.message);
         }
         client.close();
-      });
+      }
+    );
   } else {
     console.log("Errore connessione al db");
   }
 });
 
-
-// query 9 Trovare gli unicorni di genere femminile il cui nome inizia con la lettera A
-//nomecambpo:{$reegx:regex}
-mongoClient.connect(CONNECTIONSTRING, function (err, client) {
+// query 9
+mongoClient.connect(CONNECTIONSTRING, (err, client) => {
   if (!err) {
     let db = client.db(DBNAME);
     let collection = db.collection("unicorns");
-    let regex = new RegExp("^A", "i");
-    collection
-      .find({ $and: [{ "name": { "$regex": regex } }, { gender: "f" }] })
-      .toArray(function (err, data) {
-        if (!err) {
-          console.log("Query 9 - ", "N record: " + data.length, data);
-        } else {
-          console.log("Errore esecuzione query " + err.message);
-        }
-        client.close();
-      });
+    let regex = new RegExp("^a","i")
+    collection.find({$and:[{name:{$regex:regex}},{gender:"f"}] }).toArray((err, data) => {
+      if (!err) {
+        console.log("Query 9 - ", "N record: " + data.length, data);
+      } else {
+        console.log("Errore esecuzione query " + err.message);
+      }
+      client.close();
+    })
   } else {
     console.log("Errore connessione al db");
   }
-});
+})
 
-
-// query 10 Trovare un unicorno sulla base dell’ID
+// query 10
 mongoClient.connect(CONNECTIONSTRING, function (err, client) {
   if (!err) {
     let db = client.db(DBNAME);
     let collection = db.collection("unicorns");
     collection
-      .find({ _id: new _mongodb.ObjectId("61823940801d3dfa6c72ec32") }) //bisogna istanziare un oggetto ongect id
+      .find({ _id: new _mongodb.ObjectId("6182393d6b386f16673b9e81") }) 
       .toArray(function (err, data) {
         if (!err) {
           console.log("Query 10 - ", "N record: " + data.length, data);
@@ -279,16 +207,13 @@ mongoClient.connect(CONNECTIONSTRING, function (err, client) {
   }
 });
 
-
-/*
-// query 11 a
+// query 11
 mongoClient.connect(CONNECTIONSTRING, function (err, client) {
   if (!err) {
     let db = client.db(DBNAME);
     let collection = db.collection("unicorns");
     collection
-      .find({ gender: "m" })
-      .project({ name: 1, vampires: 1, _id: 0 })
+      .find({ gender:"m" }).project({name:1,vampires:1,_id:0}) 
       .toArray(function (err, data) {
         if (!err) {
           console.log("Query 11a - ", "N record: " + data.length, data);
@@ -302,20 +227,36 @@ mongoClient.connect(CONNECTIONSTRING, function (err, client) {
   }
 });
 
-// query 11 b
+// query 11b
 mongoClient.connect(CONNECTIONSTRING, function (err, client) {
   if (!err) {
     let db = client.db(DBNAME);
     let collection = db.collection("unicorns");
     collection
-      .find({ gender: "m" })
-      .project({ name: 1, vampires: 1, _id: 0 })
-      .sort({ vampires: -1, name: 1 })
-      .skip(1)
-      .limit(3)
+      .find({ gender:"m" }).project({name:1,vampires:1,_id:0}).sort({vampires:1}) 
       .toArray(function (err, data) {
         if (!err) {
           console.log("Query 11b - ", "N record: " + data.length, data);
+        } else {
+          console.log("Errore esecuzione query " + err.message);
+        }
+        client.close();
+      });
+  } else {
+    console.log("Errore connessione al db");
+  }
+});
+
+// query 11c
+mongoClient.connect(CONNECTIONSTRING, function (err, client) {
+  if (!err) {
+    let db = client.db(DBNAME);
+    let collection = db.collection("unicorns");
+    collection
+      .find({ gender:"m" }).project({name:1,vampires:1,_id:0}).sort({vampires:1}).limit(3) 
+      .toArray(function (err, data) {
+        if (!err) {
+          console.log("Query 11c - ", "N record: " + data.length, data);
         } else {
           console.log("Errore esecuzione query " + err.message);
         }
@@ -331,14 +272,16 @@ mongoClient.connect(CONNECTIONSTRING, function (err, client) {
   if (!err) {
     let db = client.db(DBNAME);
     let collection = db.collection("unicorns");
-    collection.find({ weight: { $gt: 500 } }).count(function (err, data) {
-      if (!err) {
-        console.log("Query 12", data);
-      } else {
-        console.log("Errore esecuzione query " + err.message);
-      }
-      client.close();
-    });
+    collection
+      .find({ weight:{$gte:500}}).count( 
+      function (err, data) {
+        if (!err) {
+          console.log("Query 12 - ", data);
+        } else {
+          console.log("Errore esecuzione query " + err.message);
+        }
+        client.close();
+      });
   } else {
     console.log("Errore connessione al db");
   }
@@ -349,10 +292,8 @@ mongoClient.connect(CONNECTIONSTRING, function (err, client) {
   if (!err) {
     let db = client.db(DBNAME);
     let collection = db.collection("unicorns");
-    collection.findOne(
-      { name: "Aurora" },
-      { projection: { weight: 1, hair: 1 } },
-      (err, data) => {
+    collection
+    collection.findOne({ name: "Aurora" }, { projection: { weight: 1, hair: 1 ,_id:0,name:1} },(err, data) => {
         if (!err) {
           console.log("Query 13 ", data);
         } else {
@@ -371,14 +312,16 @@ mongoClient.connect(CONNECTIONSTRING, function (err, client) {
   if (!err) {
     let db = client.db(DBNAME);
     let collection = db.collection("unicorns");
-    collection.distinct("loves", { gender: "f" }, (err, data) => {
-      if (!err) {
-        console.log("Query 14 ", data);
-      } else {
-        console.log("Errore esecuzione query " + err.message);
+    collection
+    collection.distinct( "loves",(err, data) => { //il campo su cui vogliamo fare il distinct
+        if (!err) {
+          console.log("Query 14 ", data);
+        } else {
+          console.log("Errore esecuzione query " + err.message);
+        }
+        client.close();
       }
-      client.close();
-    });
+    );
   } else {
     console.log("Errore connessione al db");
   }
@@ -389,18 +332,10 @@ mongoClient.connect(CONNECTIONSTRING, function (err, client) {
   if (!err) {
     let db = client.db(DBNAME);
     let collection = db.collection("unicorns");
-    collection.insertOne(
-      { name: "pippo", gender: "m", loves: ["apple", "lemon"] },
-      (err, data) => {
+    collection.updateOne(
+      { name: "Aurora" }, {$addToSet:{loves:"Apple"}, $inc: { vampires: 1 } }, (err, data) => { 
         if (!err) {
-          console.log("Query 15 ", data);
-          collection.deleteMany({ "name": "pippo" }, (err, data) => {
-            if (!err) {
-              console.log("Query 15b", data);
-            } else {
-              console.log("Errore esecuzione query");
-            }
-          });
+          console.log("Query 15", data);
         } else {
           console.log("Errore esecuzione query " + err.message);
         }
@@ -418,10 +353,7 @@ mongoClient.connect(CONNECTIONSTRING, function (err, client) {
     let db = client.db(DBNAME);
     let collection = db.collection("unicorns");
     collection.updateOne(
-      { name: "pilot" },
-      { $inc: { vampires: 1 } }, // se vampires non esiste crea lui il campo
-      { "upsert":true }, // se record pluto non esiste viene creato
-      (err, data) => {
+      { name: "Bellino" }, {$inc: { vampires: 1 } },{"upsert":true}, (err, data) => { 
         if (!err) {
           console.log("Query 16", data);
         } else {
@@ -437,37 +369,12 @@ mongoClient.connect(CONNECTIONSTRING, function (err, client) {
 
 // query 17
 mongoClient.connect(CONNECTIONSTRING, function (err, client) {
-   if (!err) {
-     let db = client.db(DBNAME);
-     let collection = db.collection("unicorns");
-     collection.updateOne(
-      {"name":"Aurora"},
-      {"$addToSet":{"loves":"carrot"}, "$inc":{"weight":10}},
-       (err, data) => {
-         if (!err) {
-           console.log("Query 17", data);
-         } else {
-           console.log("Errore esecuzione query " + err.message);
-         }
-         client.close();
-       }
-     );
-   } else {
-     console.log("Errore connessione al db");
-   }
- });
-
- */
-//Incrementare di 1 il numero di vampiri uccisi dall’unicorno Pluto. Se il record non esiste crearlo
-//usiamo upsert crea il record se non esiste Minnie
-mongoClient.connect(CONNECTIONSTRING, function (err, client) {
   if (!err) {
     let db = client.db(DBNAME);
     let collection = db.collection("unicorns");
-    collection.updateOne({name:"Minnie"},{$inc:{vampires:1}},{upsert:true},
-      (err, data) => {
+    collection.deleteMany({loves:{$all:["lemon","ses"]}}, (err, data) => { 
         if (!err) {
-          console.log("Query ", data);
+          console.log("Query 17", data);
         } else {
           console.log("Errore esecuzione query " + err.message);
         }
@@ -479,15 +386,14 @@ mongoClient.connect(CONNECTIONSTRING, function (err, client) {
   }
 });
 
-/* */
+// query 18
 mongoClient.connect(CONNECTIONSTRING, function (err, client) {
   if (!err) {
     let db = client.db(DBNAME);
     let collection = db.collection("unicorns");
-    collection.updateMany({vaccinated:{$exists:false}},{$set:{vaccianted:true}},
-      (err, data) => {
+    collection.find({gender:"f"}).sort({vampires:-1}).project({name:1,vampires:1,_id:0}).limit(1).toArray( (err, data) => { 
         if (!err) {
-          console.log("Query 16", data);
+          console.log("Query 18", data);
         } else {
           console.log("Errore esecuzione query " + err.message);
         }
@@ -499,15 +405,14 @@ mongoClient.connect(CONNECTIONSTRING, function (err, client) {
   }
 });
 
-/** */
+// query 19
 mongoClient.connect(CONNECTIONSTRING, function (err, client) {
   if (!err) {
     let db = client.db(DBNAME);
     let collection = db.collection("unicorns");
-    collection.deleteMany({loves:{$all:["grapes","carrot"]}},
-      (err, data) => {
+    collection.find({gender:"f"}).sort({vampires:-1}).project({name:1,vampires:1,_id:0}).limit(1).toArray( (err, data) => { 
         if (!err) {
-          console.log("Query 16", data);
+          console.log("Query 19", data);
         } else {
           console.log("Errore esecuzione query " + err.message);
         }
@@ -519,15 +424,33 @@ mongoClient.connect(CONNECTIONSTRING, function (err, client) {
   }
 });
 
-/**o metto il .project in coda*/
+// query 20
 mongoClient.connect(CONNECTIONSTRING, function (err, client) {
   if (!err) {
     let db = client.db(DBNAME);
     let collection = db.collection("unicorns");
-    collection.find({gender:"f"},{projection:{vampires:1,name:1}}).sort({vampires:-1}).limit(1).toArray(
-      (err, data) => {
+    collection.replaceOne({name:"Horny"},{"name":"Pluto","residenza":"fusan"}, (err, data) => { 
         if (!err) {
-          console.log("Query 16ais", data);
+          console.log("Query 20", data);
+        } else {
+          console.log("Errore esecuzione query " + err.message);
+        }
+        client.close();
+      }
+    );
+  } else {
+    console.log("Errore connessione al db");
+  }
+});*/
+
+// query 21
+mongoClient.connect(CONNECTIONSTRING, function (err, client) {
+  if (!err) {
+    let db = client.db(DBNAME);
+    let collection = db.collection("unicorns");
+    collection.find({$and:[{gender:"m"},{loves:{"apple":{$exists:true}}}]}).toArray( (err, data) => { 
+        if (!err) {
+          console.log("Query 20", data);
         } else {
           console.log("Errore esecuzione query " + err.message);
         }
@@ -540,25 +463,9 @@ mongoClient.connect(CONNECTIONSTRING, function (err, client) {
 });
 
 
-/** REPLACE*/
-mongoClient.connect(CONNECTIONSTRING, function (err, client) {
-  if (!err) {
-    let db = client.db(DBNAME);
-    let collection = db.collection("unicorns");
-    collection.replaceOne( {name:"Pluto"},{"name":"Pluto","residenza":"fusan",piedi:4,negri:true},
-      (err, data) => {
-        if (!err) {
-          console.log("Query 16ais", data);
-        } else {
-          console.log("Errore esecuzione query " + err.message);
-        }
-        client.close();
-      }
-    );
-  } else {
-    console.log("Errore connessione al db");
-  }
-});
+
+
+
 
 
 
