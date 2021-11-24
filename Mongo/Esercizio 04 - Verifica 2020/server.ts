@@ -152,7 +152,7 @@ mongoClient.connect(CONNECTIONSTRING, function (err, client) {
   } else {
     console.log("Errore connessione al db");
   }
-});
+});   
 
 
 
