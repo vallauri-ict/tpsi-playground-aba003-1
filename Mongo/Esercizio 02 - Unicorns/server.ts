@@ -9,7 +9,9 @@ import { HEADERS } from "./headers";
 
 
 const mongoClient = _mongodb.MongoClient;
-const CONNECTIONSTRING = "mongodb://127.0.0.1:27017";
+
+const CONNECTIONSTRING = "mongodb+srv://edoardo:aba@cluster0.7z0jw.mongodb.net/5B?retryWrites=true&w=majority"; //accesso su atlas
+//const CONNECTIONSTRING = "mongodb://127.0.0.1:27017"; locale
 const DBNAME = "5B";
 /*const dispatcher = new Dispatcher();
 const PORT = 1337; //
@@ -20,7 +22,7 @@ const server = _http.createServer(function (req, res) {
 server.listen(PORT);
 console.log("Server in ascolto sulla porta: " + PORT);*/
 
-/*
+
 // query 1 
 mongoClient.connect(CONNECTIONSTRING, (err, client) => {
   if (!err) {
@@ -441,7 +443,7 @@ mongoClient.connect(CONNECTIONSTRING, function (err, client) {
   } else {
     console.log("Errore connessione al db");
   }
-});*/
+});
 
 // query 21
 mongoClient.connect(CONNECTIONSTRING, function (err, client) {

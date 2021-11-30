@@ -1,0 +1,4 @@
+mongodb+srv://edoardo:aba@cluster0.7z0jw.mongodb.net/test
+
+node js 
+mongodb+srv://edoardo:aba@cluster0.7z0jw.mongodb.net/5B?retryWrites=true&w=majority
