@@ -24,7 +24,7 @@ $(document).ready(function () {
 
   $("#select").on("change", function () {
     textarea.empty();
-    textarea.text($(this).val());
+    textarea.val($(this).val());
   });
 
   button.click(function () {
