@@ -5,12 +5,13 @@ import * as body_parser from "body-parser";
 import HEADERS from "./headers.json";
 import * as mongodb from "mongodb";
 
+
 // munga
 const mongo_client = mongodb.MongoClient;
 const CONNECTIONSTRING = "mongodb+srv://edoardo:aba@cluster0.7z0jw.mongodb.net/5B?retryWrites=true&w=majority"
 const DBNAME = "5B";
 
-const PORT:number = 1337;
+const PORT: number = 1337;
 let app = express();
 
 let server = http.createServer(app);
@@ -24,7 +25,7 @@ server.listen(PORT, () => {
 let pagina_errore = "";
 let init = () => {
     fs.readFile("./static/error.html", (err, data) => {
-        if(!err) {
+        if (!err) {
             // data è un buffer, occorre serializzarlo
             pagina_errore = data.toString();
         } else {
@@ -60,11 +61,11 @@ app.use("/", body_parser.urlencoded({ "extended": true }));
 
 // 4 - log dei parametri
 app.use("/", (req, res, next) => {
-    if(Object.keys(req.query).length) {
+    if (Object.keys(req.query).length) {
         console.log("parametri GET: ", req.query);
     }
 
-    if(Object.keys(req.body).length) {
+    if (Object.keys(req.body).length) {
         console.log("parametri BODY: ", req.body);
     };
     next();
@@ -78,6 +79,12 @@ app.use("/", (req, res, next) => {
 /* ******************************************************************
                elenco delle route di risposta al client
    ****************************************************************** */
+//middelware che apre la connessione non lo cambiamo mai
+
+//fa getcollection
+//intercetta i parametri
+//ritorna gli unicorni
+
 app.use("/", (req, res, next) => {
     mongo_client.connect(CONNECTIONSTRING, (err, client) => {
         if (err) {
@@ -90,31 +97,6 @@ app.use("/", (req, res, next) => {
     });
 });
 
-app.get("/api/servizio1", function (req, res, next) {
-    let unicorn = req.query.name;
-    if (unicorn) {
-        let db = req["client"].db(DBNAME) as mongodb.Db;
-        let collection = db.collection("unicorns");
-
-        let request = collection.find({"name": unicorn}).toArray();
-
-        request.then((data) => {
-            res.send(data);
-        });
-
-        request.catch((err) => {
-            res.status(503).send("Errore nella query");
-        });
-
-        request.finally(() => {
-            req["client"].close();
-        });
-    } else {
-        res.status(400).send("Parametro mancante: nome unicorno");
-        req["client"].close();
-    };
-});
-
 app.patch("/api/servizio2", function (req, res, next) {
     let unicorn = req.body.name;
     let incVampires = req.body.vampires;
@@ -122,7 +104,7 @@ app.patch("/api/servizio2", function (req, res, next) {
         let db = req["client"].db(DBNAME) as mongodb.Db;
         let collection = db.collection("unicorns");
 
-        let request = collection.updateOne({"name": unicorn}, {"$inc": {"vampires": incVampires}});
+        let request = collection.updateOne({ "name": unicorn }, { "$inc": { "vampires": incVampires } });
 
         request.then((data) => {
             res.send(data);
@@ -143,13 +125,72 @@ app.patch("/api/servizio2", function (req, res, next) {
 
 app.get("/api/servizio3/:gender/:hair", function (req, res, next) {
     let gender = req.params.gender;
-    let haiir= req.params.hair;
+    let haiir = req.params.hair;
 
-    
-        let db = req["client"].db(DBNAME) as mongodb.Db;
-        let collection = db.collection("unicorns");
 
-        let request = collection.find({$and:[{gender:gender},{hair:haiir}]}).toArray();
+    let db = req["client"].db(DBNAME) as mongodb.Db;
+    let collection = db.collection("unicorns");
+
+    let request = collection.find({ $and: [{ gender: gender }, { hair: haiir }] }).toArray();
+
+    request.then((data) => {
+        res.send(data);
+    });
+
+    request.catch((err) => {
+        res.status(503).send("Errore nella query");
+    });
+
+    request.finally(() => {
+        req["client"].close();
+    });
+
+});
+
+//lettura dellla collezioni presenti nel db
+app.get("/api/getCollections", function (req, res, next) {
+
+    //req["client salviamo il client per le connessioni successive"] 
+    //l' oggetto che destisce la connessione con mogno
+    let db = req["client"].db(DBNAME) as mongodb.Db;
+
+    let request = db.listCollections().toArray();
+
+    request.then((data) => {
+        res.send(data);
+    });
+
+    request.catch((err) => {
+        res.status(503).send("Errore nella query");
+    });
+
+    request.finally(() => {
+        req["client"].close();
+    });
+
+
+});
+
+///middleware per  l' intercettazione dei parametri e deve settare queste 2 variabili
+let currentCollection;
+let currentId;
+//con o senza id l' id diventa facoltativo 
+app.use("/api/:collection/:id?", (req, res, next) => {
+    currentCollection = req.params.collection
+    currentId = req.params.id
+    next();
+})
+
+
+//ascolta su tutte le richieste get
+app.get("/api/*", function (req, res, next) {
+
+
+    let db = req["client"].db(DBNAME) as mongodb.Db;
+    let collection = db.collection(currentCollection); //currentColletion è una stringa
+
+    if (!currentId) {
+        let request = collection.find().toArray();//mando solo quello che uso
 
         request.then((data) => {
             res.send(data);
@@ -162,8 +203,93 @@ app.get("/api/servizio3/:gender/:hair", function (req, res, next) {
         request.finally(() => {
             req["client"].close();
         });
-  
+    } else {
+
+        let objectId = new mongodb.ObjectId(currentId);
+        let request = collection.findOne({ _id: objectId })
+
+        request.then((data) => {
+            res.send(data);
+        });
+
+        request.catch((err) => {
+            res.status(503).send("Errore nella query");
+        });
+
+        request.finally(() => {
+            req["client"].close();
+        });
+    }
 });
+
+app.post("/api/*", function (req, res, next) {
+
+
+    let db = req["client"].db(DBNAME) as mongodb.Db;
+    let collection = db.collection(currentCollection); 
+
+        let request = collection.insertOne(req["body"]);
+        request.then((data) => { //questo data conterra il messaggio di conferma dell'inserimento
+            res.send(data);
+        });
+
+        request.catch((err) => {
+            res.status(503).send("Errore nella query");
+        });
+
+        request.finally(() => {
+            req["client"].close();
+    });
+})
+
+app.delete("/api/*", function (req, res, next) {
+
+
+    let db = req["client"].db(DBNAME) as mongodb.Db;
+    let collection = db.collection(currentCollection); 
+
+        let id=new mongodb.ObjectId(currentId); //l' idi è intecettato
+        let request = collection.deleteOne({"_id":id});
+        request.then((data) => { //questo data conterra il messaggio di conferma dell'inserimento
+            res.send(data);
+        });
+
+        request.catch((err) => {
+            res.status(503).send("Errore nella query");
+        });
+
+        request.finally(() => {
+            req["client"].close();
+        });
+
+
+})
+
+app.patch("/api/*", function (req, res, next) {
+
+
+    let db = req["client"].db(DBNAME) as mongodb.Db;
+    let collection = db.collection(currentCollection); 
+
+        let id=new mongodb.ObjectId(currentId); //l' idi è intecettato
+        let request = collection.updateOne({"_id":id},{$set:req.body});
+        request.then((data) => { //questo data conterra il messaggio di conferma dell'inserimento
+            res.send(data);
+        });
+
+        request.catch((err) => {
+            res.status(503).send("Errore nella query");
+        });
+
+        request.finally(() => {
+            req["client"].close();
+        });
+
+
+})
+
+
+
 
 
 
@@ -177,7 +303,7 @@ app.get("/api/servizio3/:gender/:hair", function (req, res, next) {
    ****************************************************************** */
 app.use("/", (req, res, next) => {
     res.status(404);
-    if(req.originalUrl.startsWith("/api/")) {
+    if (req.originalUrl.startsWith("/api/")) {
         res.send("Risorsa non trovato");
     } else {
         res.send(pagina_errore);
