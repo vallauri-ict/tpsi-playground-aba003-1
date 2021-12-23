@@ -4,19 +4,20 @@ import * as fs from "fs";
 import * as body_parser from "body-parser";
 import HEADERS from "./headers.json";
 import * as mongodb from "mongodb";
+import cors from "cors";
 
 
 // munga
 const mongo_client = mongodb.MongoClient;
-const CONNECTIONSTRING = "mongodb+srv://edoardo:aba@cluster0.7z0jw.mongodb.net/5B?retryWrites=true&w=majority"
-const DBNAME = "5B";
+const CONNECTIONSTRING = "mongodb+srv://edoardo:aba@cluster0.7z0jw.mongodb.net/recicipebook?retryWrites=true&w=majority"
+const DBNAME = "recicipebook";
 
 const PORT: number = 1337;
 let app = express();
 
 let server = http.createServer(app);
 
-// questa collback va in esecuzione quando il server ascolta
+// questa collback va in esecuzione quando il server ascolta  0
 server.listen(PORT, () => {
     console.log("Server in ascolto sulla porta " + PORT);
     init();
@@ -71,7 +72,23 @@ app.use("/", (req, res, next) => {
     next();
 });
 
-
+//gestione richieste cors
+const whitelist = ["http://localhost:4200", "http://localhost:1337"];
+const corsOptions = {
+ origin: function(origin, callback) {
+ if (!origin)
+ return callback(null, true);
+ if (whitelist.indexOf(origin) === -1) {
+ var msg = 'The CORS policy for this site does not ' +
+ 'allow access from the specified Origin.';
+ return callback(new Error(msg), false);
+ }
+ else
+ return callback(null, true);
+ },
+ credentials: true
+};
+app.use("/", cors(corsOptions));
 
 
 
