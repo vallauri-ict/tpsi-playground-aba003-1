@@ -8,3 +8,5 @@ console.log(modulo.json.nome);
 modulo.json.setNome("Negri");
 console.log(modulo.json.nome);
 console.log(modulo.MyClass.nome);
+
+
