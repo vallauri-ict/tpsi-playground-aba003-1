@@ -52,7 +52,7 @@ Git clone https://github.com/vallauri-ict/tpsi-playground-aba003-1.git
 
 
 
-[website]: https://www.webchip.it/
+[website]: #
 
 [twitter]: #
 [youtube]: #
