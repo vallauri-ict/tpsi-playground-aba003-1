@@ -92,13 +92,9 @@ $(document).ready(function() {
  });
 
  $("#btnCloudinaryBinario").on("click", function() {
-	let file = txtFile.prop('files')[0]	
-	if (!file || !txtUser.val()){
-		alert("prego, inserire uno username e scegliere un file")
-		return;
-	}
+
 	
-	 file = txtFile.prop('files')[0]
+	let file = txtFile.prop('files')[0]
 	let username = txtUser.val()
 	if (!file || !txtUser.val()){
 		alert("prego, inserire uno username e scegliere un file")

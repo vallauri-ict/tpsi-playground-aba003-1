@@ -9,14 +9,13 @@ import ENVIRONMENT from "./enviroment.json";
 import cloudinary, { UploadApiResponse } from "cloudinary";
 
 cloudinary.v2.config({
-  cloud_name: ENVIRONMENT.CLOUD_NAME,
-  api_key: ENVIRONMENT.API_KEY,
-  api_secret: ENVIRONMENT.API_SECRET,
+  cloud_name: ENVIRONMENT.CLOUDINARY.CLOUD_NAME,
+  api_key: ENVIRONMENT.CLOUDINARY.API_KEY,
+  api_secret: ENVIRONMENT.CLOUDINARY.API_SECRET,
   // secure:true // https
 });
 
 const mongoClient = mongodb.MongoClient;
-const CONNECTION_STRING = process.env.MONGODB_URI || "mongodb+srv://edoardo:aba@cluster0.7z0jw.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"  // heroku app
 
 const DB_NAME = "5B";
 
@@ -59,12 +58,13 @@ app.use("/", function (req, res, next) {
 });
 
 // 2.static route
-//il next lo fa automaticamente quando non trova la risorsa
+//il next lo fa automaticamente quando non trova la risorsa con impostazione del limit in base 64 
+//che vengono passate come stringa nel body
 app.use("/", express.static("./static"));
 
 // 3.route lettura parametri post
-app.use("/", body_parser.json());
-app.use("/", body_parser.urlencoded({ "extended": true }));
+app.use("/", body_parser.json({"limit":"10mb"}));
+app.use("/", body_parser.urlencoded({ "extended": true,"limit":"10mb" }));
 
 // 4.log parametri
 app.use("/", function (req, res, next) {
@@ -79,13 +79,10 @@ app.use("/", function (req, res, next) {
 
 
 
-// 6. binary fileUpload
+// 6. binary fileUpload limit per la dimensione di   orende le immagini da form data e le mette in req.file
 app.use(fileUpload({
   "limits ": { "fileSize ": (10 * 1024 * 1024) } // 10 MB
 }));
-
-// 7. base64 fileUpload(limitazione della dimensione dei parametri post)
-app.use("/", express.json({ "limit": "10mb" }))
 
 
 //****************************************************************
@@ -93,7 +90,7 @@ app.use("/", express.json({ "limit": "10mb" }))
 //****************************************************************
 // middleware di apertura della connessione
 app.use("/", (req, res, next) => {
-  mongoClient.connect(CONNECTION_STRING, (err, client) => {
+  mongoClient.connect(ENVIRONMENT.CONNECTION || process.env.MONGODB_URI , (err, client) => {
     if (err) {
       res.status(503).send("Db connection error");
     } else {
@@ -198,17 +195,17 @@ app.post("/api/cloudinaryBase64", function (req, res, next) {
 
 
 app.post("/api/cloudinaryBinario", function (req, res, next) {
-  if (!req.files || Object.keys(req.files).length == 0 || !req.body.username)
+  if (!req.files || Object.keys(req.files).length == 0 || !req.body.username) //se  non è arrivatoniente
     res.status(400).send('Manca immagine o username');
   else {
-    let file = req.files.img as UploadedFile;
+    let file = req.files.img as UploadedFile;  
     let path = './static/img/' + file["name"];
     file.mv(path, function (err) {
       if (err){
         res.status(500).json(err.message);
       }
       else {
-        cloudinary.v2.uploader.upload(path, { folder: "Ese03upload", use_filename: true })
+        cloudinary.v2.uploader.upload(path, { folder: "Ese03upload", use_filename: true }) //il primo è il path dove leggere l immagine 
         .catch((error) => {
           res.status(500).send("error uploading file to cloudinary")
         })
@@ -218,7 +215,7 @@ app.post("/api/cloudinaryBinario", function (req, res, next) {
           let collection = db.collection("images");
           let user = {
             "username": req.body.username,
-            "img": file.name
+            "img": result.secure_url
           }
           let request = collection.insertOne(user);
           request.then((data) => {
@@ -239,6 +236,11 @@ app.post("/api/cloudinaryBinario", function (req, res, next) {
 //****************************************************************
 //default route(risorse non trovate) e route di gestione degli errori
 //****************************************************************
+app.use("/", function (req, res, next) {
+ res.status(404);
+ res.send("Risorsa non trovata");
+})
+
 app.use("/", function (err, req, res, next) {
   console.log("***************  ERRORE CODICE SERVER ", err.message, "  *****************");
 })
