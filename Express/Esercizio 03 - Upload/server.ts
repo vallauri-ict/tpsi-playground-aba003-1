@@ -69,10 +69,10 @@ app.use("/", body_parser.urlencoded({ "extended": true,"limit":"10mb" }));
 // 4.log parametri
 app.use("/", function (req, res, next) {
   if (Object.keys(req.query).length > 0) {
-    console.log("Parametri GET: ", req.query);
+    console.log("Parametri GET: ", req.query);//get
   }
   if (Object.keys(req.body).length > 0) {
-    console.log("Parametri BODY: ", req.body);
+    console.log("Parametri BODY: ", req.body);//post e tutti
   }
   next();
 })
@@ -192,14 +192,12 @@ app.post("/api/cloudinaryBase64", function (req, res, next) {
 })
 
 
-
-
 app.post("/api/cloudinaryBinario", function (req, res, next) {
   if (!req.files || Object.keys(req.files).length == 0 || !req.body.username) //se  non è arrivatoniente
     res.status(400).send('Manca immagine o username');
   else {
     let file = req.files.img as UploadedFile;  
-    let path = './static/img/' + file["name"];
+    let path = './static/img/' + file["name"];// nome del file 
     file.mv(path, function (err) {
       if (err){
         res.status(500).json(err.message);

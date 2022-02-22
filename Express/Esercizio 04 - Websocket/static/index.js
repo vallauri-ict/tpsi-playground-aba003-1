@@ -1,60 +1,40 @@
 $(document).ready(function () {
-  let user = { username: "", room: "" };
-
-  // mi connetto al server che mi ha inviato la pagina,
-  // il quale mi restituisce il suo serverSocket
-  // io.connect é SINCRONO, bloccante
+    
+  let btnConnetti = $("#btnConnetti");
+  let btnDisconnetti = $("#btnDisconnetti");
   let serverSocket;
-  let btnConnetti= $("#btnConnetti");
-  let btnDisconnetti =$("#btnDisconnetti");
-  btnDisconnetti.prop("disabled",true);
-  let btnInvia= $("#btnInvia").prop('disabled',true);
 
+  btnConnetti.prop("disabled", false);
+  btnDisconnetti.prop("disabled", true);
+
+  let user = { username: "", room: "default" };
  
 
-  // 2a) invio messaggio
-  $("#btnInvia").click(function () {
-    let msg = $("#txtMessage").val();
-    serverSocket.emit("message", msg);
-    $("#txtMessage").val("");
+  btnConnetti.click(function () {
+   
 
-  });
+    btnConnetti.prop("disabled", true);
+    btnDisconnetti.prop("disabled", false);
 
-  // 3) disconnessione
-  $("#btnDisconnetti").click(function () {
-    btnDisconnetti.prop("disabled",true);
-    btnConnetti.prop("disabled",false)
-    btnInvia.prop('disabled',true);
-    serverSocket.disconnect();
-  });
-
-  $("#btnConnetti").click(() => {
-
-    btnDisconnetti.prop("disabled",false);
-    btnConnetti.prop("disabled",true)
-
-    btnInvia.prop('disabled',false);
     serverSocket = io({
       transports: ["websocket"],
       upgrade: false,
     }).connect();
 
-    /* 1a) lo username viene inviato SOLO a connessione avvenuta
-	       in questo modo si evita di connetere/disconnettere + volte */
-    serverSocket.on("connect", function () {
+      serverSocket.on("connect", function () {
       console.log("connessione ok");
-      setUser();
+
+      trytolog();
+      
     });
 
     // 1b) utente valido / non valido
     serverSocket.on("loginAck", function (data) {
       if (data == "NOK") {
-        alert("Nome già esistente. Scegliere un altro nome");
-        setUser();
+       trytolog();
       } else document.title = user.username;
     });
 
-    // 2b) ricezione della risposta
     serverSocket.on("message_notify", function (data) {
       // ricezione di un messaggio dal server
       data = JSON.parse(data);
@@ -66,16 +46,20 @@ $(document).ready(function () {
     });
   });
 
-  function setUser() {
-    //it just compile the user
-    user.username = prompt("Inserisci lo username:");
-    if (user.username == "pippo" || user.username == "pluto") {
-      user.room = "room1";
-    } else {
-      user.room = "defaultRoom";
-    }
-    serverSocket.emit("login", JSON.stringify(user));
-  }
+  // 2a) invio messaggio
+  $("#btnInvia").click(function () {
+    let msg = $("#txtMessage").val();
+    serverSocket.emit("message", msg);
+  });
+
+  // 2b) ricezione della risposta
+
+  // 3) disconnessione
+  btnDisconnetti.click(function () {
+    btnConnetti.prop("disabled", false);
+    btnDisconnetti.prop("disabled", true);
+    serverSocket.disconnect();
+  });
 
   function visualizza(username, message, date) {
     let wrapper = $("#wrapper");
@@ -86,7 +70,7 @@ $(document).ready(function () {
     date = new Date(date);
     let mittente = $(
       "<small class='message-from'>" +
-        user.username +
+        username +
         " @" +
         date.toLocaleTimeString() +
         "</small>"
@@ -105,4 +89,16 @@ $(document).ready(function () {
     // fa scorrere il testo verso l'alto in 500ms
     wrapper.animate({ scrollTop: h }, 500);
   }
+
+  function trytolog(){
+    user.username = prompt("Inserisci lo username:");
+  
+    if ( user.username == 'pippo'||user.username =='pluto') {
+      user.room="priviledged"
+    } 
+    
+    serverSocket.emit("login", JSON.stringify(user));
+  }
 });
+
+

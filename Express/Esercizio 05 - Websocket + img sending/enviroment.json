@@ -1,0 +1,12 @@
+{
+
+    "CLOUDINARY":{
+        "CLOUD_NAME":"iis-vallauri",
+        "API_KEY":"179733328919161",
+        "API_SECRET":"-n2UVdgNwzGEz0fPkGhDvfjaOfc",
+        "CLOUDINARY_URL":"cloudinary://179733328919161:-n2UVdgNwzGEz0fPkGhDvfjaOfc@iis-vallauri"  
+    },
+
+    "CONNECTION":"mongodb+srv://edoardo:aba@cluster0.7z0jw.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+   
+}

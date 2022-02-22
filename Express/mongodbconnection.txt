@@ -2,3 +2,11 @@ mongodb+srv://edoardo:aba@cluster0.7z0jw.mongodb.net/test
 
 node js 
 mongodb+srv://edoardo:aba@cluster0.7z0jw.mongodb.net/5B?retryWrites=true&w=majority
+local
+mongodb+srv://edoardo:aba@cluster0.7z0jw.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
+
+
+mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false
+
+
+
